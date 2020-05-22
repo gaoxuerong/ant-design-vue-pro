@@ -1,9 +1,13 @@
 <template>
-  <div>
-    <div class="desc">header</div>
+  <div class="header">
+    header
   </div>
 </template>
 <script>
 export default {};
 </script>
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.header {
+  float: right;
+}
+</style>

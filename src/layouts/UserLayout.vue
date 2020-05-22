@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div class="desc">fff</div>
     <router-view></router-view>
   </div>
 </template>
