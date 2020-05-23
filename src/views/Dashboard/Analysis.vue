@@ -1,7 +1,14 @@
 <template>
-  <div>analysis</div>
+  <div>
+    <chart />
+  </div>
 </template>
 <script>
-export default {};
+import Chart from "@/components/Chart";
+export default {
+  components: {
+    Chart
+  }
+};
 </script>
 <style lang="less" scoped></style>

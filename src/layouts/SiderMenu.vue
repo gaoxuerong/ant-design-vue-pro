@@ -1,14 +1,18 @@
 <template>
   <div style="width: 256px">
     <a-menu
-      :default-selected-keys="['1']"
-      :default-open-keys="['2']"
+      :selectedKeys="selectedKeys"
+      :openKeys.sync="openKeys"
       mode="inline"
       :theme="theme"
       :inline-collapsed="collapsed"
     >
       <template v-for="item in menuData">
-        <a-menu-item v-if="!item.children" :key="item.path">
+        <a-menu-item
+          v-if="!item.children"
+          :key="item.path"
+          @click="() => $router.push({ path: item.key, query: $route.query })"
+        >
           <a-icon v-if="item.meta.icon" :type="item.meta.icon" />
           <span>{{ item.meta.title }}</span>
         </a-menu-item>
@@ -20,44 +24,13 @@
 
 <script>
 import SubMenu from "./SubMenu";
-// const SubMenu = {
-//   template: `
-//       <a-sub-menu :key="menuInfo.key" v-bind="$props" v-on="$listeners">
-//         <span slot="title">
-//           <a-icon type="mail" /><span>{{ menuInfo.title }}</span>
-//         </span>
-//         <template v-for="item in menuInfo.children">
-//           <a-menu-item v-if="!item.children" :key="item.key">
-//             <a-icon type="pie-chart" />
-//             <span>{{ item.title }}</span>
-//           </a-menu-item>
-//           <sub-menu v-else :key="item.key" :menu-info="item" />
-//         </template>
-//       </a-sub-menu>
-//     `,
-//   name: "SubMenu",
-//   // must add isSubMenu: true
-//   isSubMenu: true,
-//   props: {
-//     ...Menu.SubMenu.props,
-//     // Cannot overlap with properties within Menu.SubMenu.props
-//     menuInfo: {
-//       type: Object,
-//       default: () => ({})
-//     }
-//   }
-// };
+import { check } from "@/utils/auth";
 export default {
-  data() {
-    const menuData = this.getMenuData(this.$router.options.routes);
-    return {
-      collapsed: false,
-      list: [],
-      menuData
-    };
-  },
-  components: {
-    "sub-menu": SubMenu
+  watch: {
+    "$route.path": function(val) {
+      this.selectedKeys = this.selectedKeysMap[val];
+      this.openKeys = this.collapsed ? [] : this.openKeysMap[val];
+    }
   },
   props: {
     theme: {
@@ -65,19 +38,45 @@ export default {
       default: "dark"
     }
   },
+  data() {
+    this.selectedKeysMap = {};
+    this.openKeysMap = {};
+    const menuData = this.getMenuData(this.$router.options.routes);
+    return {
+      collapsed: false,
+      selectedKeys: this.selectedKeysMap[this.$route.path], // 当前选中的路由二级路由
+      openKeys: [], // 数组 eg: ["/", "/dashboard", "/dashboard/analysis"]
+      menuData
+    };
+  },
+  components: {
+    "sub-menu": SubMenu
+  },
   methods: {
-    toggleCollapsed() {
-      this.collapsed = !this.collapsed;
-    },
     // 处理路由，根据实际情况再做改动
-    getMenuData(routes) {
+    // 拿到路由菜单[],做递归遍历
+    getMenuData(routes = [], parentKeys = [], selectedKey) {
       const menuData = [];
-      routes.forEach(element => {
+      for (let element of routes) {
+        if (element.meta && element.meta.auth && !check(element.meta.auth)) {
+          break;
+        }
         if (element.name && !element.hideInMenu) {
+          this.openKeysMap[element.path] = parentKeys;
+          this.selectedKeysMap[element.path] = [selectedKey || element.path];
           const newItem = { ...element };
           delete newItem.children;
           if (element.children && !element.hideChildrenInMenu) {
-            newItem.children = this.getMenuData(element.children);
+            newItem.children = this.getMenuData(element.children, [
+              ...parentKeys,
+              element.path
+            ]);
+          } else {
+            this.getMenuData(
+              element.children,
+              selectedKey ? parentKeys : [...parentKeys, element.path],
+              selectedKey || element.path
+            );
           }
           menuData.push(newItem);
         } else if (
@@ -86,9 +85,11 @@ export default {
           element.children
         ) {
           // 递归children
-          menuData.push(...this.getMenuData(element.children));
+          menuData.push(
+            ...this.getMenuData(element.children, [...parentKeys, element.path])
+          );
         }
-      });
+      }
       return menuData;
     }
   }
