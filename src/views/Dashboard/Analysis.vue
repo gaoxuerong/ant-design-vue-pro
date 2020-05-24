@@ -1,5 +1,6 @@
 <template>
   <div>
+    <a-date-picker @change="onChange" />
     <chart :option="charOption" style="height: 300px; width: 1100px;" />
   </div>
 </template>
@@ -49,6 +50,9 @@ export default {
           ]
         };
       });
+    },
+    onChange() {
+      console.log(123);
     }
   },
   destroyed() {

@@ -1,5 +1,25 @@
 <template>
   <div id="app">
-    <router-view></router-view>
+    <a-locale-provider :locale="locale">
+      <router-view></router-view>
+    </a-locale-provider>
   </div>
 </template>
+<script>
+import zhCN from "ant-design-vue/lib/locale-provider/zh_CN";
+import enUS from "ant-design-vue/lib/locale-provider/en_US";
+import moment from "moment";
+export default {
+  data() {
+    return {
+      locale: zhCN
+    };
+  },
+  watch: {
+    "$route.query.locale": function(val) {
+      this.locale = val === "enUS" ? enUS : zhCN;
+      moment.locale(val === "enUS" ? enUS : zhCN);
+    }
+  }
+};
+</script>

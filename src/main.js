@@ -1,5 +1,15 @@
 import Vue from "vue";
-import { Button, Layout, Icon, Drawer, Radio, Menu } from "ant-design-vue"; // 按需引入
+import {
+  Button,
+  Layout,
+  Icon,
+  Drawer,
+  Radio,
+  Menu,
+  LocaleProvider,
+  Dropdown,
+  DatePicker
+} from "ant-design-vue"; // 按需引入
 
 import App from "./App.vue";
 import router from "./router";
@@ -15,6 +25,9 @@ Vue.use(Icon);
 Vue.use(Drawer);
 Vue.use(Radio);
 Vue.use(Menu);
+Vue.use(LocaleProvider);
+Vue.use(Dropdown);
+Vue.use(DatePicker);
 Vue.component("Auth", Auth); // 注册全局组件
 Vue.use(AUTH); // 注册全局指令
 
