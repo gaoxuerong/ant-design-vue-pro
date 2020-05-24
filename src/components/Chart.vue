@@ -1,30 +1,45 @@
 <template>
-  <div ref="chartDom" style="height: 300px; width: 1200px;"></div>
+  <div ref="chartDom"></div>
 </template>
 <script>
 import echarts from "echarts";
+import { addListener, removeListener } from "resize-detector";
 export default {
+  props: {
+    option: {
+      type: Object,
+      default: () => {}
+    }
+  },
+  watch: {
+    option: {
+      handler(val) {
+        this.chart.setOption(val);
+      },
+      deep: true
+    }
+  },
   mounted() {
-    // 基于准备好的dom，初始化echarts实例
-    var myChart = echarts.init(this.$refs.chartDom);
-    // 绘制图表
-    myChart.setOption({
-      title: {
-        text: "ECharts 入门示例"
-      },
-      tooltip: {},
-      xAxis: {
-        data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
-      },
-      yAxis: {},
-      series: [
-        {
-          name: "销量",
-          type: "bar",
-          data: [5, 20, 36, 10, 10, 20]
-        }
-      ]
-    });
+    this.renderChar();
+    addListener(this.$refs.chartDom, this.resize);
+  },
+  // 防止内存泄漏,引入第三方库最需要注意的一个点
+  beforeDestroy() {
+    removeListener(this.$refs.chartDom, this.resize);
+    this.chart.dispose();
+    this.chart = null;
+  },
+  methods: {
+    resize() {
+      this.chart.resize();
+    },
+    // render
+    renderChar() {
+      // 基于准备好的dom，初始化echarts实例
+      this.chart = echarts.init(this.$refs.chartDom);
+      // 绘制图表
+      this.chart.setOption(this.option);
+    }
   }
 };
 </script>
