@@ -12,6 +12,7 @@ export default {
     }
   },
   watch: {
+    // 深度监听
     option: {
       handler(val) {
         this.chart.setOption(val);
