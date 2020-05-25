@@ -2,7 +2,9 @@
   <div ref="chartDom"></div>
 </template>
 <script>
-import echarts from "echarts";
+import echarts from "echarts/lib/echarts"; // 核心包
+import "echarts/lib/chart/bar";
+import "echarts/lib/component/title";
 import { addListener, removeListener } from "resize-detector";
 export default {
   props: {

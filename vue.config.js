@@ -1,3 +1,5 @@
+const path = require("path");
+const webpack = require("webpack");
 module.exports = {
   css: {
     loaderOptions: {
@@ -6,6 +8,14 @@ module.exports = {
           "primary-color": "#1DA57A" // 更改主题色
         },
         javascriptEnabled: true
+      }
+    }
+  },
+  configureWebpack: {
+    plugins: [new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)],
+    resolve: {
+      alias: {
+        "@ant-design/icons/lib/dist$": path.resolve(__dirname, "./src/icons.js")
       }
     }
   },
